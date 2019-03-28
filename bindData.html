@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+  <title>bindingData</title>
+</head>
+
+<body>
+  <p>Apple</p>
+  <p>Pear</p>
+  <p>Banana</p>
+
+  <div>apple</div>
+  <div>pear</div>
+  <div>banana</div>
+</body>
+<script>
+  // datum: 绑定一个数据到选择集上
+  let str = 'China'
+
+  let body = d3.select('body')
+  let p = body.selectAll('p')
+
+  p.datum(str)
+    .text((d, i) => {
+      return '第' + i + '个元素绑定的数据是' + d
+    })
+
+  // data: 绑定一个数组到选择集上，数组的各项值分别与选择集的各元素绑定
+  let dataset = ['I like dogs', 'I like cats', 'I like snakes']
+  let div = body.selectAll('div')
+
+  div.data(dataset)
+    .text((d, i) => {
+      return d
+    })
+</script>
+
+</html>

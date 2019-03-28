@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+  <title>selectItem</title>
+</head>
+
+<body>
+  <p>Apple</p>
+  <p id="myid" class="myclass">Pear</p>
+  <p class="myclass">Banana</p>
+</body>
+<script>
+  // 选择第一个元素
+  let body = d3.select('body')
+  let p1 = body.select('p')
+  p1.style('color', 'red')
+
+  // 选择全部元素
+  let p = body.selectAll('p')
+  p.style('color', 'green')
+
+  // 选择第二个元素
+  let p2 = body.select('#myid')
+  p2.style('color', 'yellow')
+
+  // 选择后两个
+  let p3 = body.selectAll('.myclass')
+  p3.style('color', 'blue')
+
+  // 插入元素
+  // append: 在选择集末尾插入元素
+  body.append('p')
+    .text('append p element')
+
+  // insert: 在选择集前面插入元素
+  body.insert('p', '#myid')
+    .text('insert a element')
+
+  // 删除元素
+  p2.remove()
+</script>
+
+</html>
