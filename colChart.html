@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+  <title>colChart</title>
+</head>
+
+<body>
+</body>
+<script>
+  let width = 400
+  let height = 400
+  let svg = d3.select('body')
+    .append('svg')
+    .attr('width', width)
+    .attr('height', height)
+
+  // 定义了一个 padding，是为了给 SVG 的周边留一个空白
+  let padding = {
+    left: 30,
+    right: 30,
+    top: 20,
+    bottom: 20
+  }
+
+  let dataset = [10, 20, 30, 40, 33, 24, 12, 5]
+
+  // x轴比例尺
+  let xscale = d3.scale.ordinal()
+    .domain(d3.range(dataset.length))
+    .rangeRoundBands([0, width - padding.left - padding.right])
+
+  // y轴比例尺
+  let yscale = d3.scale.linear()
+    .domain([0, d3.max(dataset)])
+    .range([height - padding.top - padding.bottom, 0])
+
+  let xAxis = d3.svg.axis()
+    .scale(xscale)
+    .orient('bottom')
+  let yAxis = d3.svg.axis()
+    .scale(yscale)
+    .orient('left')
+
+  // 矩形之间的空白
+  let rectPadding = 4
+  // 添加矩形元素
+  let rect = svg.selectAll('.MyRect')
+    .data(dataset)
+    .enter()
+    .append('rect')
+    .attr('class', 'MyRect')
+    .attr('transform', 'translate(' + padding.left + ',' + padding.top + ')')
+    .attr('x', (d, i) => {
+      return xscale(i) + rectPadding / 2
+    })
+    .attr('y', (d) => {
+      return yscale(d)
+    })
+    .attr('width', xscale.rangeBand() - rectPadding)
+    .attr('height', (d) => {
+      return height - padding.top - padding.bottom - yscale(d)
+    })
+
+  // 添加文字元素
+  let texts = svg.selectAll('.MyText')
+    .data(dataset)
+    .enter()
+    .append('text')
+    .attr('class', 'MyText')
+    .attr('transform', 'translate(' + padding.left + ',' + padding.top + ')')
+    .attr('x', (d, i) => {
+      return xscale(i) + rectPadding / 2
+    })
+    .attr('y', (d) => {
+      return yscale(d)
+    })
+    .attr('dx', () => {
+      return (xscale.rangeBand() - rectPadding) / 2
+    })
+    .attr('dy', 20)
+    .text((d) => {
+      return d
+    })
+
+  // 添加坐标轴
+  svg.append('g')
+    .attr('class', 'axis')
+    .attr('transform', 'translate(' + padding.left + ',' + (height - padding.bottom) + ')')
+    .call(xAxis)
+
+  svg.append('g')
+    .attr('class', 'axis')
+    .attr('transform', 'translate(' + padding.left + ',' + padding.top + ')')
+    .call(yAxis)
+</script>
+<style>
+  .MyRect {
+    fill: steelblue;
+  }
+
+  .MyText {
+    fill: white;
+    text-anchor: middle;
+  }
+
+  .axis line,
+  .axis path {
+    fill: none;
+    stroke: black;
+    shape-rendering: crispEdges;
+  }
+
+  .axis text {
+    font-size: 11px;
+    font-family: sans-serif;
+  }
+</style>
+
+</html>
