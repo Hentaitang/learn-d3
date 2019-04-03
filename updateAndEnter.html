@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+  <title>updateAndEnter</title>
+</head>
+
+<body>
+  <p></p>
+  <p></p>
+  <p></p>
+  <div></div>
+  <div></div>
+  <div></div>
+</body>
+<script>
+  let p = d3.select('body').selectAll('p')
+  let dataset = [3, 6, 9, 12, 15]
+  let update = p.data(dataset)
+  let enter = update.enter()
+  update.text((d) => {
+    return 'update' + d
+  })
+  enter.append('p')
+    .text((d) => {
+      return 'enter' + d
+    })
+
+  let dataset2 = [3]
+  let div = d3.select('body').selectAll('div')
+  let update1 = div.data(dataset2)
+  let exit = update1.exit()
+  update1.text(d => {
+    return 'update' + d
+  })
+  exit.text(d => {
+    return 'exit'
+  })
+  // exit部分的处理通常是删除元素
+  // exit.remove()
+</script>
+
+</html>

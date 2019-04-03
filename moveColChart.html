@@ -63,6 +63,17 @@
       let min = yScale.domain()[0]
       return height - padding.top - padding.bottom - yScale(min)
     })
+    .attr('fill', 'steelblue')
+    .on('mouseover', function (d, i) {
+      d3.select(this)
+        .attr('fill', 'yellow')
+    })
+    .on('mouseout', function (d, i) {
+      d3.select(this)
+        .transition()
+        .duration(500)
+        .attr('fill', 'steelblue')
+    })
     .transition()
     .delay((d, i) => {
       return i * 200
@@ -117,7 +128,7 @@
 </script>
 <style>
   .MyRect {
-    fill: steelblue;
+    /* fill: steelblue; */
   }
 
   .MyText {
