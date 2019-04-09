@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+  <style src="//at.alicdn.com/t/font_980556_az5j8mj06gf.css"></style>
+  <title>pieChart</title>
+</head>
+
+<body>
+</body>
+<script>
+  let set = ['折叠', '删除', '多关系拓展', '拓展']
+  let dataset = []
+  set.forEach(v => dataset.push(1))
+  let width = 400
+  let height = 400
+
+  let svg = d3.select('body')
+    .append('svg')
+    .attr('width', width)
+    .attr('height', height)
+
+  let pie = d3.layout.pie()
+  let piedata = pie(dataset)
+
+  let color = d3.scale.category10() // 有十种颜色的颜色比例尺
+
+  let outerRadius = 75 // 外半径
+  let innerRadius = 25 // 内半径，为0则中间没有空白
+  let arc = d3.svg.arc() // 弧生成器
+    .innerRadius(innerRadius) // 设置内半径
+    .outerRadius(outerRadius) // 设置外半径
+
+  let arcs = svg.selectAll('g')
+    .data(piedata)
+    .enter()
+    .append('g')
+    .attr('class', 'gHover')
+    .attr('transform', 'translate(' + width / 2 + ',' + height / 2 + ')')
+
+  arcs.append('path')
+    .attr('fill', 'rgba(220,220,220,1)')
+    .attr('d', (d) => {
+      return arc(d) // 调用弧生成器，得到路径
+    })
+
+  arcs.append('title')
+    .text('拓展')
+  arcs.append('text')
+    .attr('transform', (d) => {
+      return 'translate(' + arc.centroid(d) + ')'
+    })
+    .attr('text-anchor', 'middle')
+    .attr('class', (d, i) => {
+      switch (i) {
+        case 0:
+          return 'iconfont icon-guanbi1'
+          break
+        case 1:
+          return '删除'
+          break
+        case 2:
+          return '拓展'
+          break
+      }
+    })
+    .text((d, i) => {
+      switch (i) {
+        case 0:
+          return '-'
+          break
+        case 1:
+          return 'x'
+          break
+        case 2:
+          return '++'
+          break
+        case 3:
+          return '+'
+          break
+      }
+    })
+</script>
+<style>
+  body {
+    background: white;
+  }
+
+  path {
+    stroke: #CDCDCD;
+    stroke-width: 4;
+  }
+
+  .gHover:hover {
+    cursor: pointer;
+  }
+
+  .gHover:hover path {
+    fill: rgba(2, 179, 252, 1);
+  }
+
+  .gHover:hover text {
+    fill: #fff;
+  }
+</style>
+
+</html>
