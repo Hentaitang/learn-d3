@@ -1,0 +1,468 @@
+<html>
+<meta charset="utf-8">
+<!-- <script src="https://d3js.org/d3-force.v1.min.js"></script> -->
+<script src="https://d3js.org/d3.v5.min.js"></script>
+<style>
+  .edge {
+    stroke: white;
+    stroke-width: 1;
+  }
+
+  .graphSVG {
+    background-color: black;
+  }
+
+  div.container {
+    width: 100%;
+    border: 1px solid gray;
+  }
+
+  div.tooltip {
+    position: absolute;
+    text-align: center;
+    width: 180px;
+    padding: 2px;
+    font: 12px sans-serif;
+    background: lightsteelblue;
+    border: 0px;
+    border-radius: 8px;
+    pointer-events: none;
+  }
+</style>
+
+<body>
+  <div id="graphDiv"></div>
+  <button class="back">回退</button>
+
+  <script src="./1.js"></script>
+  <script>
+    var radius = 20;
+    var height = document.body.clientHeight;
+    var graphWidth = document.body.clientWidth;
+
+    var graphCanvas = d3.select('#graphDiv').append('canvas')
+      .attr('width', graphWidth + 'px')
+      .attr('height', height + 'px')
+      .node()
+
+    // var offscreen = document.querySelector('canvas').transferControlToOffscreen()
+    var context = graphCanvas.getContext('2d');
+
+    // var div = d3.select("body").append("div")
+    //   .attr("class", "tooltip")
+    //   .style("opacity", 0);
+
+    var drag
+
+    var data = {
+      nodes: aaa.vertices,
+      edges: aaa.edges
+    }
+
+    // var data = {
+    //   nodes: d3.range(200).map(function (i) {
+    //     return {
+    //       id: i,
+    //       group: Math.round(Math.random() * 10)
+    //     }
+    //   }),
+    //   edges: d3.range(200 - 1).map(function (i) {
+    //     return {
+    //       source: Math.floor(Math.sqrt(i)),
+    //       target: i + 1,
+    //       value: Math.round(Math.random() * 10)
+    //     }
+    //   })
+    // }
+
+    // var graphData = {
+    //   dataBase: {
+    //     nodes: d3.range(5000).map(function (i) {
+    //       return {
+    //         id: i,
+    //         group: Math.round(Math.random() * 10)
+    //       }
+    //     }),
+    //     edges: d3.range(5000 - 1).map(function (i) {
+    //       return {
+    //         source: Math.floor(Math.sqrt(i)),
+    //         target: i + 1,
+    //         value: Math.round(Math.random() * 10)
+    //       }
+    //     })
+    //   },
+    //   height,
+    //   graphWidth,
+    //   canvas: offscreen
+    // }
+    // var worker = new Worker('d4-force.js');
+    // worker.postMessage(graphData, [offscreen])
+    // // worker.postMessage({
+    // //   canvas: offscreen
+    // // }, [offscreen])
+    // // worker.postMessage(graphData, [offscreen])
+    // worker.onmessage = function (event) {
+    //   console.log(event.data);
+    // };
+
+    // worker.onerror = function (e) {
+    //   e.currentTarget.terminate();
+    //   console.log('erro: ' + e.message);
+    // };
+
+
+    // d3.select('canvas')
+    //   .call(d3.zoom().scaleExtent([1 / 10, 8]).on("zoom", zoomed))
+
+    // function zoomed() {
+    //   console.log("zooming")
+    //   // graphData.zoom = 1
+    //   // transform = d3.event.transform;
+    //   // simulationUpdate();
+    // }
+    var simulation = d3.forceSimulation()
+      .force("center", d3.forceCenter(graphWidth / 2, height / 2))
+      .force("x", d3.forceX(graphWidth / 2).strength(.05))
+      .force("y", d3.forceY(height / 2).strength(.05))
+      .force("charge", d3.forceManyBody().strength(-3000))
+      .force("link", d3.forceLink().strength(.4).id(function (d) {
+        return d.id;
+      }))
+      .alphaTarget(0)
+      .alphaDecay(0.05)
+
+    var transform = d3.zoomIdentity;
+
+    initGraph(data)
+
+    document.querySelector('.back').addEventListener('click', () => {
+      console.log(1)
+      initGraph(data)
+      context.save();
+      context.clearRect(0, 0, graphWidth, height);
+      context.translate(transform.x, transform.y);
+      context.scale(transform.k, transform.k);
+
+      data.edges.forEach(function (d) {
+        context.beginPath();
+        context.moveTo(d.source.x, d.source.y);
+        context.lineTo(d.target.x, d.target.y);
+        context.stroke();
+      });
+
+      // Draw the nodes
+      data.nodes.forEach(function (d, i) {
+
+        context.beginPath();
+        context.arc(d.x, d.y, radius, 0, 2 * Math.PI, true);
+        context.fillStyle = d.col ? "red" : "black"
+        context.fill();
+      });
+      context.restore();
+    })
+
+    document.querySelector('canvas').addEventListener('mousemove', ($event) => {
+      let i,
+        x = getMousePos(document.querySelector('canvas'), $event).x,
+        y = getMousePos(document.querySelector('canvas'), $event).y,
+        dx,
+        dy;
+      for (i = data.nodes.length - 1; i >= 0; --i) {
+        node = data.nodes[i];
+        dx = x - node.x;
+        dy = y - node.y;
+
+        if (dx * dx + dy * dy < radius * radius) {
+
+          console.log(node)
+
+          return node;
+        }
+      }
+    })
+
+    function getMousePos(canvas, evt) {
+      var rect = canvas.getBoundingClientRect();
+      return {
+        x: evt.clientX - rect.left * (canvas.width / rect.width),
+        y: evt.clientY - rect.top * (canvas.height / rect.height)
+      }
+    }
+
+    function initGraph(tempData) {
+
+
+      function zoomed() {
+        console.log("zooming")
+        transform = d3.event.transform;
+        simulationUpdate();
+      }
+
+      d3.select(graphCanvas)
+        .call(d3.drag().subject(dragsubject).on("start", dragstarted).on("drag", dragged).on("end", dragended))
+        .call(d3.zoom().scaleExtent([1 / 10, 8]).on("zoom", zoomed))
+        .on('mouseover', () => {
+          console.log(1)
+        })
+        .on('mousedown', () => {
+          if (tempData.nodes.length < 150) return
+          let node = dragsubject()
+          edges = [],
+            nodes = []
+          tempData.edges.forEach(v => {
+            v.source.id === node.id ? edges.push(v) : ''
+            v.target.id === node.id ? edges.push(v) : ''
+          })
+          edges = filterArray(edges)
+          nodes.push(node)
+          tempData.nodes.forEach(v => {
+            edges.forEach(val => {
+              val.source.id === v.id ? nodes.push(v) : ''
+              val.target.id === v.id ? nodes.push(v) : ''
+            })
+          })
+          nodes = filterArray(nodes)
+
+          initGraph({
+            nodes,
+            edges
+          })
+          context.save();
+          context.clearRect(0, 0, graphWidth, height);
+          context.translate(transform.x, transform.y);
+          context.scale(transform.k, transform.k);
+
+          edges.forEach(function (d) {
+            context.beginPath();
+            context.moveTo(d.source.x, d.source.y);
+            context.lineTo(d.target.x, d.target.y);
+            context.stroke();
+          });
+
+          // Draw the nodes
+          nodes.forEach(function (d, i) {
+
+            context.beginPath();
+            context.arc(d.x, d.y, radius, 0, 2 * Math.PI, true);
+            context.fillStyle = d.col ? "red" : "black"
+            context.fill();
+          });
+          context.restore();
+
+          // initGraph({
+          //   nodes,
+          //   edges
+          // })
+        })
+
+
+
+      function dragsubject() {
+        drag = true
+        console.log("dragsubject start")
+        // console.log(d3.event)
+        var i,
+          x = transform.invertX(d3.event.x),
+          y = transform.invertY(d3.event.y),
+          dx,
+          dy;
+        // console.log(d3.event)
+        for (i = tempData.nodes.length - 1; i >= 0; --i) {
+          node = tempData.nodes[i];
+          dx = x - node.x;
+          dy = y - node.y;
+
+          if (dx * dx + dy * dy < radius * radius) {
+
+            node.x = transform.applyX(node.x);
+            node.y = transform.applyY(node.y);
+
+
+            // context.save();
+            // context.clearRect(0, 0, graphWidth, height);
+            // context.translate(transform.x, transform.y);
+            // context.scale(transform.k, transform.k);
+
+            // edges.forEach(function (d) {
+            //   context.beginPath();
+            //   context.moveTo(d.source.x, d.source.y);
+            //   context.lineTo(d.target.x, d.target.y);
+            //   context.stroke();
+            // });
+
+            // // Draw the nodes
+            // nodes.forEach(function (d, i) {
+
+            //   context.beginPath();
+            //   context.arc(d.x, d.y, radius, 0, 2 * Math.PI, true);
+            //   context.fillStyle = d.col ? "red" : "black"
+            //   context.fill();
+            // });
+            // context.restore();
+
+            return node;
+          }
+        }
+
+        console.log("dragsubject start +")
+      }
+
+
+      function dragstarted() {
+        if (!d3.event.active) simulation.alphaTarget(0.3).restart();
+        d3.event.subject.fx = transform.invertX(d3.event.x);
+        d3.event.subject.fy = transform.invertY(d3.event.y);
+      }
+
+      function dragged() {
+        d3.event.subject.fx = transform.invertX(d3.event.x);
+        d3.event.subject.fy = transform.invertY(d3.event.y);
+
+      }
+
+      function dragended() {
+        if (!d3.event.active) simulation.alphaTarget(0);
+        d3.event.subject.fx = null;
+        d3.event.subject.fy = null;
+
+
+        // let node = dragsubject()
+        // edges = [],
+        //   nodes = []
+        // tempData.edges.forEach(v => {
+        //   v.source.id === node.id ? edges.push(v) : ''
+        //   v.target.id === node.id ? edges.push(v) : ''
+        // })
+        // edges = filterArray(edges)
+        // nodes.push(node)
+        // tempData.nodes.forEach(v => {
+        //   edges.forEach(val => {
+        //     val.source.id === v.id ? nodes.push(v) : ''
+        //     val.target.id === v.id ? nodes.push(v) : ''
+        //   })
+        // })
+        // nodes = filterArray(nodes)
+        // console.log(edges)
+        // console.log(nodes)
+        // if (tempData.nodes.length < 150) return
+        // setTimeout(() => {
+        //   initGraph({
+        //     nodes,
+        //     edges
+        //   })
+        //   context.save();
+        //   context.clearRect(0, 0, graphWidth, height);
+        //   context.translate(transform.x, transform.y);
+        //   context.scale(transform.k, transform.k);
+
+        //   edges.forEach(function (d) {
+        //     context.beginPath();
+        //     context.moveTo(d.source.x, d.source.y);
+        //     context.lineTo(d.target.x, d.target.y);
+        //     context.stroke();
+        //   });
+
+        //   // Draw the nodes
+        //   nodes.forEach(function (d, i) {
+
+        //     context.beginPath();
+        //     context.arc(d.x, d.y, radius, 0, 2 * Math.PI, true);
+        //     context.fillStyle = d.col ? "red" : "black"
+        //     context.fill();
+        //   });
+        //   context.restore();
+        // }, 1000)
+      }
+
+      simulation.nodes(tempData.nodes)
+        .on("tick", simulationUpdate);
+
+      simulation.force("link")
+        .links(tempData.edges);
+
+      function simulationUpdate() {
+        if (simulation.alpha() > 0.005 && !drag) {
+          if (data.nodes.length <= 1000) {
+            index = (1 - simulation.alpha()) * 1500
+          } else if (data.nodes.length <= 3000) {
+            index = (1 - simulation.alpha()) * 3500
+          } else if (data.nodes.length <= 5000) {
+            index = (1 - simulation.alpha()) * 6000
+          } else {
+            index = (1 - simulation.alpha()) * 10000
+          }
+          // context.save();
+          context.clearRect(0, 0, graphWidth, height);
+          // context.translate(transform.x, transform.y);
+          // context.scale(transform.k, transform.k);
+          // Draw the nodes
+          tempData.nodes.forEach(function (d, i) {
+            if (i > index) return
+            context.beginPath();
+            context.arc(d.x, d.y, radius, 0, 2 * Math.PI, true);
+            context.fillStyle = d.col ? "red" : "black"
+            context.fill();
+          });
+
+          context.restore();
+        } else if (simulation.alpha() < 0.002 && drag) {
+          drag = false
+          console.log(simulation.alpha())
+        } else {
+          context.save();
+          context.clearRect(0, 0, graphWidth, height);
+          context.translate(transform.x, transform.y);
+          context.scale(transform.k, transform.k);
+
+          tempData.edges.forEach(function (d) {
+            context.beginPath();
+            context.moveTo(d.source.x, d.source.y);
+            context.lineTo(d.target.x, d.target.y);
+            context.stroke();
+          });
+
+          // Draw the nodes
+          tempData.nodes.forEach(function (d, i) {
+
+            context.beginPath();
+            context.arc(d.x, d.y, radius, 0, 2 * Math.PI, true);
+            context.fillStyle = d.col ? "red" : "black"
+            context.fill();
+          });
+          context.restore();
+        }
+      }
+    }
+
+    function filterArray(arr) {
+      let newArray = []
+      arr.forEach((v, i) => {
+        let judge
+        newArray.forEach(val => {
+          val.id === v.id ? (judge = true) : ''
+        })
+        if (!judge) {
+          newArray.push(v)
+        }
+      })
+      return newArray
+    }
+  </script>
+  <style>
+    body {
+      margin: 0;
+    }
+
+    .back {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      z-index: 100;
+    }
+
+    #graphDiv {
+      width: 100vw;
+      height: 100vh;
+    }
+  </style>
+</body>

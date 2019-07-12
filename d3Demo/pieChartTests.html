@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+  <style src="//at.alicdn.com/t/font_980556_az5j8mj06gf.css"></style>
+  <title>pieChart</title>
+</head>
+
+<body>
+</body>
+<script>
+  let set = ['折叠', '删除', '多关系拓展', '拓展', 1, 2]
+  let set1 = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+  let dataset = [],
+    dataset1 = []
+  set.forEach(v => dataset.push(1))
+  set1.forEach(v => dataset1.push(1))
+  let width = 400
+  let height = 400
+
+  let svg = d3.select('body')
+    .append('svg')
+    .attr('width', width)
+    .attr('height', height)
+
+  let pie = d3.layout.pie()
+  let piedata = pie(dataset),
+    piedata1 = pie(dataset1)
+
+  let color = d3.scale.category10() // 有十种颜色的颜色比例尺
+
+  let outerRadius = 75 // 外半径
+  let innerRadius = 25 // 内半径，为0则中间没有空白
+  let arc = d3.svg.arc() // 弧生成器
+    .innerRadius(innerRadius) // 设置内半径
+    .outerRadius(outerRadius) // 设置外半径
+
+  let outerRadius1 = 135 // 外半径
+  let innerRadius1 = 85 // 内半径，为0则中间没有空白
+  let arc1 = d3.svg.arc() // 弧生成器
+    .innerRadius(innerRadius1) // 设置内半径
+    .outerRadius(outerRadius1) // 设置外半径
+
+  let arcs = svg.selectAll('g')
+    .data(piedata)
+    .enter()
+    .append('g')
+    .attr('class', 'gHover')
+    .attr('transform', 'translate(' + width / 2 + ',' + height / 2 + ')')
+
+  let arcs1 = svg.selectAll('.Hover')
+    .data(piedata1)
+    .enter()
+    .append('g')
+    .attr('class', (d, i) => {
+      switch (i) {
+        case 0:
+          return 'gHover'
+          break
+        case 1:
+          return 'gHover'
+          break
+        case 2:
+          return 'gHover'
+          break
+        default:
+          return 'unshow'
+          break
+      }
+    })
+    .attr('transform', 'translate(' + width / 2 + ',' + height / 2 + ')')
+
+  arcs.append('path')
+    .attr('fill', 'rgba(220,220,220,1)')
+    .attr('d', (d) => {
+      return arc(d) // 调用弧生成器，得到路径
+    })
+
+  arcs1.append('path')
+    .attr('fill', 'rgba(220,220,220,1)')
+    .attr('d', (d) => {
+      return arc1(d) // 调用弧生成器，得到路径
+    })
+
+
+  arcs.append('text')
+    .attr('transform', (d) => {
+      return 'translate(' + arc.centroid(d) + ')'
+    })
+    .attr('text-anchor', 'middle')
+    .attr('class', (d, i) => {
+      switch (i) {
+        case 0:
+          return 'iconfont icon-guanbi1'
+          break
+        case 1:
+          return '删除'
+          break
+        case 2:
+          return '拓展'
+          break
+      }
+    })
+    .text((d, i) => {
+      switch (i) {
+        case 0:
+          return '-'
+          break
+        case 1:
+          return 'x'
+          break
+        case 2:
+          return '++'
+          break
+        case 3:
+          return '+'
+          break
+      }
+    })
+
+  arcs1.append('text')
+    .attr('transform', (d) => {
+      return 'translate(' + arc1.centroid(d) + ')'
+    })
+    .attr('text-anchor', 'middle')
+    .text((d, i) => {
+      switch (i) {
+        case 0:
+          return '-'
+          break
+        case 1:
+          return 'x'
+          break
+        case 2:
+          return '++'
+          break
+      }
+    })
+</script>
+<style>
+  body {
+    background: white;
+  }
+
+  path {
+    stroke: #CDCDCD;
+    stroke-width: 4;
+  }
+
+  .Hover:hover,
+  .gHover:hover {
+    cursor: pointer;
+  }
+
+  .Hover:hover path,
+  .gHover:hover path {
+    fill: rgba(2, 179, 252, 1);
+  }
+
+  .Hover:hover text,
+  .gHover:hover text {
+    fill: #fff;
+  }
+
+  .unshow {
+    display: none;
+  }
+</style>
+
+</html>

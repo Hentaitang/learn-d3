@@ -1,0 +1,23 @@
+{
+  "name": "d3-demo",
+  "version": "1.0.0",
+  "description": "学习D3基础知识，demo上传",
+  "main": "d3-force.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Hentaitang/learn-d3.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Hentaitang/learn-d3/issues"
+  },
+  "homepage": "https://github.com/Hentaitang/learn-d3#readme",
+  "dependencies": {
+    "d3": "^5.9.2",
+    "d3-selection": "^1.4.0"
+  }
+}
