@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <script src="http://d3js.org/d3.v5.min.js" charset="utf-8"></script>
+  <title>updateAndEnter</title>
+</head>
+
+<body>
+  <p></p>
+  <p></p>
+  <p></p>
+  <!-- <div></div>
+  <div></div>
+  <div></div> -->
+</body>
+<script>
+  // Update 和 Enter 的使用
+  let p = d3.select('body').selectAll('p') //选择body中的p元素
+  let dataset = [3, 6, 9, 12, 15]
+  let update = p.data(dataset) //获取update部分
+  let enter = update.enter() //获取enter部分
+  //update部分的处理：更新属性值
+  update.text((d) => {
+    return 'update' + d
+  })
+  // 当对应的元素不足时 （ 绑定数据数量 > 对应元素 ），需要添加元素（append）
+  //enter部分的处理：添加元素后赋予属性值
+  enter.append('p')
+    .text((d) => {
+      return 'enter' + d
+    })
+
+
+  // Update 和 Exit 的使用
+  // 当对应的元素过多时 （ 绑定数据数量 < 对应元素 ），需要删掉多余的元素。
+  // let dataset2 = [3]
+  // let div = d3.select('body').selectAll('div')
+  // let update1 = div.data(dataset2)
+  // let exit = update1.exit()
+  // update1.text(d => {
+  //   return 'update' + d
+  // })
+  // exit.text(d => {
+  //   return 'exit'
+  // })
+  // exit部分的处理通常是删除元素
+  // exit.remove()
+</script>
+
+</html>
