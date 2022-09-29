@@ -17,7 +17,7 @@
   },
   "homepage": "https://github.com/Hentaitang/learn-d3#readme",
   "dependencies": {
-    "d3": "^5.9.2",
+    "d3": "^7.6.1",
     "d3-selection": "^1.4.0"
   }
 }
